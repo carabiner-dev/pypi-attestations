@@ -1,0 +1,48 @@
+syntax = "proto3";
+
+package pypi.attestations;
+
+option go_package = "github.com/carabiner-dev/pypi-attestations/proto/pb;pb";
+
+import "google/protobuf/struct.proto";
+
+// Attestation object as defined in PEP 740.
+//
+// Represents a complete attestation with cryptographic verification materials
+// and an enveloped statement with signature.
+message Attestation {
+  // The attestation format's version, which is always 1.
+  uint32 version = 1;
+
+  // Cryptographic materials used to verify the attestation.
+  VerificationMaterial verification_material = 2;
+
+  // The enveloped attestation statement and signature.
+  Envelope envelope = 3;
+}
+
+// Cryptographic materials used to verify attestation objects.
+message VerificationMaterial {
+  // The signing certificate, as DER-encoded bytes.
+  // In the JSON representation, this is base64-encoded.
+  bytes certificate = 1;
+
+  // One or more transparency log entries for this attestation's signature
+  // and certificate. Each entry is a structured object containing transparency
+  // log metadata.
+  repeated google.protobuf.Struct transparency_entries = 2;
+}
+
+// The attestation envelope, containing the attested-for payload and its signature.
+message Envelope {
+  // The attestation statement.
+  //
+  // This is represented as opaque bytes on the wire, but it MUST be a
+  // JSON in-toto v1 Statement when decoded.
+  // In the JSON representation, this is base64-encoded.
+  bytes statement = 1;
+
+  // A signature for the above statement.
+  // In the JSON representation, this is base64-encoded.
+  bytes signature = 2;
+}
